@@ -37,12 +37,12 @@ const TableToolbar = ({
   numSelected,
   addUserHandler,
   deleteUserHandler,
+  mailUserHandler,
   preGlobalFilteredRows,
   setGlobalFilter,
   globalFilter,
 }) => {
   const classes = useToolbarStyles();
-  const alert = useAlert();
   return (
     <Toolbar
       className={clsx(classes.root, {
@@ -75,12 +75,7 @@ const TableToolbar = ({
             </IconButton>
           </Tooltip>
           <Tooltip title="Email">
-            <IconButton
-              aria-label="mail"
-              onClick={() => {
-                alert.success('An Alert');
-              }}
-            >
+            <IconButton aria-label="mail" onClick={mailUserHandler}>
               <MailIcon />
             </IconButton>
           </Tooltip>

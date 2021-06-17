@@ -20,6 +20,7 @@ import {
   useSortBy,
   useTable,
 } from 'react-table';
+import { useAlert } from 'react-alert';
 
 const IndeterminateCheckbox = React.forwardRef(
   ({ indeterminate, ...rest }, ref) => {
@@ -54,13 +55,46 @@ const EditableCell = ({
 }) => {
   // We need to keep and update the state of the cell normally
   const [value, setValue] = React.useState(initialValue);
-
+  const alert = useAlert();
   const onChange = (e) => {
     setValue(e.target.value);
   };
 
+  function ValidateEmail(mail) {
+    if (
+      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(
+        mail
+      )
+    ) {
+      return true;
+    }
+    return false;
+  }
+
   // We'll only update the external data when the input is blurred
   const onBlur = () => {
+    //Validation on Inputs
+    if (id === 'phone') {
+      if (value.length !== 10) {
+        alert.error('Length should be 10');
+        setValue(initialValue);
+        return;
+      }
+    }
+    if (id === 'name') {
+      if (value.length < 3 || value.length > 25) {
+        alert.error('Use Length between 3 & 25');
+        setValue(initialValue);
+        return;
+      }
+    }
+    if (id === 'email') {
+      if (!ValidateEmail(value)) {
+        alert.error('Not a valid Email');
+        setValue(initialValue);
+        return;
+      }
+    }
     updateMyData(index, id, value);
   };
 
@@ -160,6 +194,8 @@ const EnhancedTable = ({
     }
   );
 
+  const alert = useAlert();
+
   const handleChangePage = (event, newPage) => {
     gotoPage(newPage);
   };
@@ -176,7 +212,36 @@ const EnhancedTable = ({
       data,
       Object.keys(selectedRowIds).map((x) => parseInt(x, 10))
     );
+    alert.show('To save deletion click Update');
     setData(newData);
+  };
+
+  const groupByIndexs = (array, indexs) =>
+    array.filter((_, i) => indexs.includes(i));
+
+  const mailUserHandler = async (event) => {
+    const newData = groupByIndexs(
+      data,
+      Object.keys(selectedRowIds).map((x) => parseInt(x, 10))
+    );
+    alert.show('Sending Mail');
+    console.log(newData);
+    const response = await fetch(
+      'https://table345.herokuapp.com/api/tableData/sendMail',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newData),
+      }
+    );
+    const dataRec = response.status;
+    if (dataRec === 201) {
+      alert.success('Mail sent');
+    } else if (dataRec === 404) {
+      alert.error('Could not send mail');
+    }
   };
 
   const addUserHandler = (user) => {
@@ -192,6 +257,7 @@ const EnhancedTable = ({
         numSelected={Object.keys(selectedRowIds).length}
         deleteUserHandler={deleteUserHandler}
         addUserHandler={addUserHandler}
+        mailUserHandler={mailUserHandler}
         preGlobalFilteredRows={preGlobalFilteredRows}
         setGlobalFilter={setGlobalFilter}
         globalFilter={globalFilter}

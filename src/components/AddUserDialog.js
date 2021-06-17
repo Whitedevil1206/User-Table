@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import AddIcon from '@material-ui/icons/Add';
 import Button from '@material-ui/core/Button';
@@ -14,16 +14,23 @@ import TextField from '@material-ui/core/TextField';
 import Tooltip from '@material-ui/core/Tooltip';
 
 const AddUserDialog = ({ addUserHandler, totalRows }) => {
-  const initialUser = {
-    idx: totalRows.length + 1,
+  let initialUser = {
+    idx: '',
     name: '',
     phone: '',
     email: '',
-    hobbies: [],
+    hobbies: '',
   };
 
-  const [user, setUser] = useState(initialUser);
+  const [user, setUser] = useState(
+    React.useMemo(() => initialUser, [totalRows])
+  );
   const [open, setOpen] = React.useState(false);
+  const [error, setError] = React.useState({
+    name: '',
+    phone: '',
+    email: '',
+  });
 
   const [switchState, setSwitchState] = React.useState({
     addMultiple: false,
@@ -47,15 +54,19 @@ const AddUserDialog = ({ addUserHandler, totalRows }) => {
   };
 
   const handleAdd = (event) => {
-    addUserHandler(user);
+    if (!handleValidation()) {
+      return;
+    }
+    addUserHandler({ ...user, ['idx']: totalRows.length + 1 });
     let tempUser = {
-      idx: user.idx + 1,
+      idx: '',
       name: '',
       phone: '',
       email: '',
-      hobbies: [],
+      hobbies: '',
     };
     setUser(tempUser);
+    console.log(initialUser);
     switchState.addMultiple ? setOpen(true) : setOpen(false);
   };
 
@@ -64,6 +75,48 @@ const AddUserDialog = ({ addUserHandler, totalRows }) => {
     ({ target: { value } }) => {
       setUser({ ...user, [name]: value });
     };
+
+  function ValidateEmail(mail) {
+    if (
+      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(
+        mail
+      )
+    ) {
+      return true;
+    }
+    return false;
+  }
+
+  const flag = React.useRef(0);
+
+  const handleValidation = () => {
+    flag.current = 0;
+    let createError = {
+      name: '',
+      phone: '',
+      email: '',
+    };
+    if (user.name.length < 3 || user.name.length > 25) {
+      createError.name = 'Length should be between 3 and 25';
+      flag.current = 1;
+    }
+    if (user.phone.length !== 10) {
+      createError.phone = 'Length should be 10';
+      flag.current = 1;
+    }
+    if (!ValidateEmail(user.email)) {
+      createError.email = 'Not a valid Email';
+      flag.current = 1;
+    }
+
+    if (flag.current === 1) {
+      setError(createError);
+      return false;
+    } else {
+      setError(createError);
+      return true;
+    }
+  };
 
   return (
     <div>
@@ -79,7 +132,7 @@ const AddUserDialog = ({ addUserHandler, totalRows }) => {
       >
         <DialogTitle id="form-dialog-title">Add User</DialogTitle>
         <DialogContent>
-          <DialogContentText>Demo add item to react table.</DialogContentText>
+          <DialogContentText>Add row to table.</DialogContentText>
           <TextField
             autoFocus
             margin="dense"
@@ -88,6 +141,7 @@ const AddUserDialog = ({ addUserHandler, totalRows }) => {
             fullWidth
             value={user.name}
             onChange={handleChange('name')}
+            helperText={error.name}
           />
           <TextField
             margin="dense"
@@ -96,6 +150,7 @@ const AddUserDialog = ({ addUserHandler, totalRows }) => {
             fullWidth
             value={user.phone}
             onChange={handleChange('phone')}
+            helperText={error.phone}
           />
           <TextField
             margin="dense"
@@ -104,6 +159,7 @@ const AddUserDialog = ({ addUserHandler, totalRows }) => {
             fullWidth
             value={user.email}
             onChange={handleChange('email')}
+            helperText={error.email}
           />
           <TextField
             margin="dense"
