@@ -21,5 +21,5 @@ export default function makeData(...lens) {
       email: 'test2@gmail.com',
       hobbies: 'volleyball, binging',
     },
-  ];
+  ]
 }

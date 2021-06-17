@@ -1,50 +1,50 @@
-import React from 'react';
+import React from 'react'
 
-import Checkbox from '@material-ui/core/Checkbox';
-import MaUTable from '@material-ui/core/Table';
-import PropTypes from 'prop-types';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableFooter from '@material-ui/core/TableFooter';
-import TableHead from '@material-ui/core/TableHead';
-import TablePagination from '@material-ui/core/TablePagination';
-import TablePaginationActions from './TablePaginationActions';
-import TableRow from '@material-ui/core/TableRow';
-import TableSortLabel from '@material-ui/core/TableSortLabel';
-import TableToolbar from './TableToolbar';
+import Checkbox from '@material-ui/core/Checkbox'
+import MaUTable from '@material-ui/core/Table'
+import PropTypes from 'prop-types'
+import TableBody from '@material-ui/core/TableBody'
+import TableCell from '@material-ui/core/TableCell'
+import TableContainer from '@material-ui/core/TableContainer'
+import TableFooter from '@material-ui/core/TableFooter'
+import TableHead from '@material-ui/core/TableHead'
+import TablePagination from '@material-ui/core/TablePagination'
+import TablePaginationActions from './TablePaginationActions'
+import TableRow from '@material-ui/core/TableRow'
+import TableSortLabel from '@material-ui/core/TableSortLabel'
+import TableToolbar from './TableToolbar'
 import {
   useGlobalFilter,
   usePagination,
   useRowSelect,
   useSortBy,
   useTable,
-} from 'react-table';
-import { useAlert } from 'react-alert';
+} from 'react-table'
+import { useAlert } from 'react-alert'
 
 const IndeterminateCheckbox = React.forwardRef(
   ({ indeterminate, ...rest }, ref) => {
-    const defaultRef = React.useRef();
-    const resolvedRef = ref || defaultRef;
+    const defaultRef = React.useRef()
+    const resolvedRef = ref || defaultRef
 
     React.useEffect(() => {
-      resolvedRef.current.indeterminate = indeterminate;
-    }, [resolvedRef, indeterminate]);
+      resolvedRef.current.indeterminate = indeterminate
+    }, [resolvedRef, indeterminate])
 
     return (
       <>
         <Checkbox ref={resolvedRef} {...rest} />
       </>
-    );
+    )
   }
-);
+)
 
 const inputStyle = {
   padding: 0,
   margin: 0,
   border: 0,
   background: 'transparent',
-};
+}
 
 // Create an editable cell renderer
 const EditableCell = ({
@@ -54,11 +54,11 @@ const EditableCell = ({
   updateMyData, // This is a custom function that we supplied to our table instance
 }) => {
   // We need to keep and update the state of the cell normally
-  const [value, setValue] = React.useState(initialValue);
-  const alert = useAlert();
-  const onChange = (e) => {
-    setValue(e.target.value);
-  };
+  const [value, setValue] = React.useState(initialValue)
+  const alert = useAlert()
+  const onChange = e => {
+    setValue(e.target.value)
+  }
 
   function ValidateEmail(mail) {
     if (
@@ -66,9 +66,9 @@ const EditableCell = ({
         mail
       )
     ) {
-      return true;
+      return true
     }
-    return false;
+    return false
   }
 
   // We'll only update the external data when the input is blurred
@@ -76,32 +76,32 @@ const EditableCell = ({
     //Validation on Inputs
     if (id === 'phone') {
       if (value.length !== 10) {
-        alert.error('Length should be 10');
-        setValue(initialValue);
-        return;
+        alert.error('Length should be 10')
+        setValue(initialValue)
+        return
       }
     }
     if (id === 'name') {
       if (value.length < 3 || value.length > 25) {
-        alert.error('Use Length between 3 & 25');
-        setValue(initialValue);
-        return;
+        alert.error('Use Length between 3 & 25')
+        setValue(initialValue)
+        return
       }
     }
     if (id === 'email') {
       if (!ValidateEmail(value)) {
-        alert.error('Not a valid Email');
-        setValue(initialValue);
-        return;
+        alert.error('Not a valid Email')
+        setValue(initialValue)
+        return
       }
     }
-    updateMyData(index, id, value);
-  };
+    updateMyData(index, id, value)
+  }
 
   // If the initialValue is changed externall, sync it up with our state
   React.useEffect(() => {
-    setValue(initialValue);
-  }, [initialValue]);
+    setValue(initialValue)
+  }, [initialValue])
 
   return (
     <input
@@ -110,8 +110,8 @@ const EditableCell = ({
       onChange={onChange}
       onBlur={onBlur}
     />
-  );
-};
+  )
+}
 
 EditableCell.propTypes = {
   cell: PropTypes.shape({
@@ -124,12 +124,12 @@ EditableCell.propTypes = {
     id: PropTypes.number.isRequired,
   }),
   updateMyData: PropTypes.func.isRequired,
-};
+}
 
 // Set our editable cell renderer as the default Cell renderer
 const defaultColumn = {
   Cell: EditableCell,
-};
+}
 
 const EnhancedTable = ({
   columns,
@@ -165,8 +165,8 @@ const EnhancedTable = ({
     useSortBy,
     usePagination,
     useRowSelect,
-    (hooks) => {
-      hooks.allColumns.push((columns) => [
+    hooks => {
+      hooks.allColumns.push(columns => [
         // Let's make a column for selection
         {
           id: 'selection',
@@ -190,42 +190,42 @@ const EnhancedTable = ({
           ),
         },
         ...columns,
-      ]);
+      ])
     }
-  );
+  )
 
-  const alert = useAlert();
+  const alert = useAlert()
 
   const handleChangePage = (event, newPage) => {
-    gotoPage(newPage);
-  };
+    gotoPage(newPage)
+  }
 
-  const handleChangeRowsPerPage = (event) => {
-    setPageSize(Number(event.target.value));
-  };
+  const handleChangeRowsPerPage = event => {
+    setPageSize(Number(event.target.value))
+  }
 
   const removeByIndexs = (array, indexs) =>
-    array.filter((_, i) => !indexs.includes(i));
+    array.filter((_, i) => !indexs.includes(i))
 
-  const deleteUserHandler = (event) => {
+  const deleteUserHandler = event => {
     const newData = removeByIndexs(
       data,
-      Object.keys(selectedRowIds).map((x) => parseInt(x, 10))
-    );
-    alert.show('To save deletion click Update');
-    setData(newData);
-  };
+      Object.keys(selectedRowIds).map(x => parseInt(x, 10))
+    )
+    alert.show('To save deletion click Update')
+    setData(newData)
+  }
 
   const groupByIndexs = (array, indexs) =>
-    array.filter((_, i) => indexs.includes(i));
+    array.filter((_, i) => indexs.includes(i))
 
-  const mailUserHandler = async (event) => {
+  const mailUserHandler = async event => {
     const newData = groupByIndexs(
       data,
-      Object.keys(selectedRowIds).map((x) => parseInt(x, 10))
-    );
-    alert.show('Sending Mail');
-    console.log(newData);
+      Object.keys(selectedRowIds).map(x => parseInt(x, 10))
+    )
+    alert.show('Sending Mail')
+    console.log(newData)
     const response = await fetch(
       'https://table345.herokuapp.com/api/tableData/sendMail',
       {
@@ -235,20 +235,20 @@ const EnhancedTable = ({
         },
         body: JSON.stringify(newData),
       }
-    );
-    const dataRec = response.status;
+    )
+    const dataRec = response.status
     if (dataRec === 201) {
-      alert.success('Mail sent');
+      alert.success('Mail sent')
     } else if (dataRec === 404) {
-      alert.error('Could not send mail');
+      alert.error('Could not send mail')
     }
-  };
+  }
 
-  const addUserHandler = (user) => {
-    const newData = data.concat([user]);
-    setData(newData);
-    console.log(newData);
-  };
+  const addUserHandler = user => {
+    const newData = data.concat([user])
+    setData(newData)
+    console.log(newData)
+  }
 
   // Render the UI for your table
   return (
@@ -264,9 +264,9 @@ const EnhancedTable = ({
       />
       <MaUTable {...getTableProps()}>
         <TableHead>
-          {headerGroups.map((headerGroup) => (
+          {headerGroups.map(headerGroup => (
             <TableRow {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map((column) => (
+              {headerGroup.headers.map(column => (
                 <TableCell
                   {...(column.id === 'selection'
                     ? column.getHeaderProps()
@@ -287,18 +287,18 @@ const EnhancedTable = ({
         </TableHead>
         <TableBody>
           {page.map((row, i) => {
-            prepareRow(row);
+            prepareRow(row)
             return (
               <TableRow {...row.getRowProps()}>
-                {row.cells.map((cell) => {
+                {row.cells.map(cell => {
                   return (
                     <TableCell {...cell.getCellProps()}>
                       {cell.render('Cell')}
                     </TableCell>
-                  );
+                  )
                 })}
               </TableRow>
-            );
+            )
           })}
         </TableBody>
 
@@ -327,8 +327,8 @@ const EnhancedTable = ({
         </TableFooter>
       </MaUTable>
     </TableContainer>
-  );
-};
+  )
+}
 
 EnhancedTable.propTypes = {
   columns: PropTypes.array.isRequired,
@@ -336,6 +336,6 @@ EnhancedTable.propTypes = {
   updateMyData: PropTypes.func.isRequired,
   setData: PropTypes.func.isRequired,
   skipPageReset: PropTypes.bool.isRequired,
-};
+}
 
-export default EnhancedTable;
+export default EnhancedTable

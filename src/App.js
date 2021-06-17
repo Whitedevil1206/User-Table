@@ -1,33 +1,31 @@
-import React, { useEffect } from 'react';
+import React, { useEffect } from 'react'
 
-import CssBaseline from '@material-ui/core/CssBaseline';
-import Button from '@material-ui/core/Button';
-import EnhancedTable from './components/EnhancedTable';
-import { useAlert } from 'react-alert';
-import CloudUploadIcon from '@material-ui/icons/CloudUpload';
+import CssBaseline from '@material-ui/core/CssBaseline'
+import Button from '@material-ui/core/Button'
+import EnhancedTable from './components/EnhancedTable'
+import { useAlert } from 'react-alert'
+import CloudUploadIcon from '@material-ui/icons/CloudUpload'
 
 const App = () => {
   const getTableData = async () => {
-    const response = await fetch(
-      'https://table345.herokuapp.com/api/tableData'
-    );
-    const dataRec = response.status;
+    const response = await fetch('https://table345.herokuapp.com/api/tableData')
+    const dataRec = response.status
     if (dataRec === 404) {
-      alert.error('Could not fetch data');
-      alert.error('Check your connection');
+      alert.error('Could not fetch data')
+      alert.error('Check your connection')
     } else if (dataRec === 200) {
-      alert.success('Data fetched');
+      alert.success('Data fetched')
     }
-    const data = await response.json();
-    setData(data);
-  };
+    const data = await response.json()
+    setData(data)
+  }
 
   useEffect(() => {
-    alert.show('Please wait while we fetch your data');
-    getTableData();
-  }, []);
+    alert.show('Please wait while we fetch your data')
+    getTableData()
+  }, [])
 
-  const alert = useAlert();
+  const alert = useAlert()
   const columns = React.useMemo(
     () => [
       {
@@ -52,11 +50,11 @@ const App = () => {
       },
     ],
     []
-  );
+  )
 
-  const [data, setData] = React.useState(React.useMemo(() => [], []));
-  const [skipPageReset, setSkipPageReset] = React.useState(false);
-  const count = React.useRef(0);
+  const [data, setData] = React.useState(React.useMemo(() => [], []))
+  const [skipPageReset, setSkipPageReset] = React.useState(false)
+  const count = React.useRef(0)
 
   // We need to keep the table from resetting the pageIndex when we
   // Update data. So we can keep track of that flag with a ref.
@@ -66,27 +64,27 @@ const App = () => {
   // original data
   const updateMyData = (rowIndex, columnId, value) => {
     // We also turn on the flag to not reset the page
-    count.current++;
-    setSkipPageReset(true);
-    setData((old) =>
+    count.current++
+    setSkipPageReset(true)
+    setData(old =>
       old.map((row, index) => {
         if (index === rowIndex) {
           return {
             ...old[rowIndex],
             [columnId]: value,
-          };
+          }
         }
-        return row;
+        return row
       })
-    );
+    )
 
     if (count.current === 1) {
-      alert.show('To save changes click Update');
+      alert.show('To save changes click Update')
     }
-  };
+  }
 
   const handleUpdate = async () => {
-    alert.show('Saving data');
+    alert.show('Saving data')
     const response = await fetch(
       'https://table345.herokuapp.com/api/tableData',
       {
@@ -96,12 +94,12 @@ const App = () => {
         },
         body: JSON.stringify(data),
       }
-    );
-    const dataRec = response.status;
+    )
+    const dataRec = response.status
     if (dataRec === 201) {
-      alert.success('Data saved');
+      alert.success('Data saved')
     }
-  };
+  }
 
   return (
     <div>
@@ -124,7 +122,7 @@ const App = () => {
         </Button>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default App;
+export default App
