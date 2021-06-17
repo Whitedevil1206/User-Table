@@ -250,7 +250,7 @@ const EnhancedTable = ({
     console.log(newData)
   }
 
-  // Render the UI for your table
+  // Render the UI for the table
   return (
     <TableContainer>
       <TableToolbar
